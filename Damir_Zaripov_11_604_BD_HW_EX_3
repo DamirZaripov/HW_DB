@@ -1,0 +1,69 @@
+
+1. Организовать связи между таблицами, добавив недостающие поля в таблицы (на один фильм может приходится множество актеров и режиссеров).
+
+//сделали уникальные id у фильмов 
+CREATE SEQUENCE id_film_seq INCREMENT 1;
+ALTER TABLE films ADD COLUMN id_film INTEGER DEFAULT nextval('id_film_seq');
+
+//связь будет через таблицу 
+CREATE TABLE film_to_producer_and_actor (
+id_film INTEGER NOT NULL,
+id_actor INTEGER NOT NULL,
+id_producer INTEGER NOT NULL);
+
+2. Добавить в таблицу режиссёров связь с их лучшим фильмом в таблице фильмы. Подумать как бы это пришлось делать, если бы ссылка предполагалась изначально.
+
+// создаем таблицу producer без поля film, создаем таблицу films с полем id_producer, добавляем в таблицу producers поле id_film_best
+ALTER TABLE producers ADD COLUMN id_film_best INTEGER DEFAULT 0; 
+
+3. Поменять для таблицы фильмы первичный ключ: добавить новое поле(movie_id) и соответстувенно новую последовательность для этого поля.
+
+ALTER TABLE films DROP CONSTRAINT films_pkey;
+ALTER TABLE films ADD PRIMARY KEY (id_film);
+
+4. Изменить значение по умолчанию для поля Страна на "UK".
+
+ALTER TABLE films ALTER country SET DEFAULT('UK');
+
+5. Удалить ограничение на число фильмо для актеров.
+
+ALTER TABLE actors DROP CONSTRAINT number_of_movies_check;
+
+6. Поменять ограничение на бюджет фильма: поле бюджет не должен быть < 1000. 
+
+ALTER TABLE films DROP CONSTRAINT budget_check;
+ALTER TABLE films ADD CONSTRAINT budget_min CHECK (budget > 1000);
+
+7. Выделить жанры в отдельную таблицу, организовать межтабличную связь.
+
+CREATE TABLE genres(
+id_genre SERIAL,
+name varchar(20));
+
+ALTER TABLE films DROP COLUMN genre;
+ALTER TABLE films ADD COLUMN id_genre INTEGER;
+
+8. Изменить тип для поля страна рождения. Сделать его перечислением из следующих вариантов ("USA", "UK", "Russia", "France", "Germany")
+
+CREATE TYPE birth_country AS Enum('USA','US','Russia','France','Germany');
+ALTER TABLE actors DROP COLUMN motherland;
+ALTER TABLE producers DROP COLUMN motherland;
+ALTER TABLE actors ADD COLUMN motherland birth_country;
+ALTER TABLE producers ADD COLUMN motherland birth_country;
+
+9. Добавить проверку на поле дата рождения: она не должна превышать текущую дату.
+
+ALTER TABLE actors ADD CONSTRAINT check_birthady CHECK (birthday <= CURRENT_DATE);
+
+10. Создать индекс по фамилии и имени Актеров.
+
+CREATE INDEX ON actors(name,surname);
+
+11. Обновить таблицу фильмов. Добавить в название в скобках год издания фильма.
+
+ALTER TABLE films ALTER name1 RENAME TO name1 (1992) where id_film = 1; 
+ALTER TABLE films ALTER name2 RENAME TO name2 (1993) where id_film = 2; 
+ALTER TABLE films ALTER name3 RENAME TO name3 (1994) where id_film = 3; 
+ALTER TABLE films ALTER name4 RENAME TO name4 (1995) where id_film = 4; 
+ALTER TABLE films ALTER name5 RENAME TO name5 (1996) where id_film = 5; 
+ALTER TABLE films ALTER name6 RENAME TO name6 (1997) where id_film = 6; 
